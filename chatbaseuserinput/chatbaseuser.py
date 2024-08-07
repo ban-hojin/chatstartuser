@@ -1,6 +1,5 @@
 import streamlit as st
-from langchain.chat_models import ChatOpenAI
-from langchain.schema import HumanMessage
+import openai
 
 # Streamlit 페이지 설정
 st.set_page_config(page_title="🦜🔗 뭐든지 질문하세요~ ")
@@ -10,14 +9,14 @@ st.title('🦜🔗 뭐든지 질문하세요~ ')
 api_key = st.text_input("OpenAI API Key를 입력하세요:", type="password")
 
 def generate_response(input_text, api_key):  # LLM이 답변 생성
-    llm = ChatOpenAI(
-        temperature=0,  # 창의성 0으로 설정
-        model_name='gpt-3.5-turbo',  # 모델명
-        openai_api_key=api_key  # API 키 설정
+    openai.api_key = api_key  # API 키 설정
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "user", "content": input_text}
+        ]
     )
-    messages = [HumanMessage(content=input_text)]  # 메시지 생성
-    response = llm(messages)  # 모델 호출
-    return response.content  # 응답 반환
+    return response.choices[0].message['content']  # 응답 반환
 
 if api_key:
     # Streamlit 폼 사용
